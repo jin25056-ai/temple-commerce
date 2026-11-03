@@ -9,18 +9,114 @@ const videos=[
 {id:'short2',youtubeId:'LGELrqKpPFA',title:'절에간성경 쇼츠 ②',sub:'실제 채널 쇼츠 · 클릭해서 재생',image:'https://i.ytimg.com/vi/LGELrqKpPFA/hqdefault.jpg',products:[],kind:'쇼츠'}
 ];
 const categories=[['전체','✦'],['농산물','🥬'],['수산물','🐟'],['축산물','🥩'],['김치·반찬','🥢'],['곡물·잡곡','🌾'],['가공식품','🍯'],['건강식품','🌿'],['선물세트','🎁']];
-let state={page:'home',category:'전체',query:'',video:'main',cart:[],modal:null,menu:false,videoTab:'전체',favorites:[],toast:''};
+let state={slide:0,page:'home',category:'전체',query:'',video:'main',cart:[],modal:null,menu:false,videoTab:'전체',favorites:[],toast:''};
 const money=n=>n.toLocaleString('ko-KR')+'원';const byId=id=>products.find(p=>p.id===id);const videoById=id=>videos.find(v=>v.id===id);const safe=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 function card(p){return `<article class="product-card"><button class="product-image" data-product="${p.id}" aria-label="${safe(p.name)} 상세보기"><img src="${p.image}" alt="${safe(p.name)}" loading="lazy"/><span class="product-tag">${p.tag}</span></button><div class="product-info"><button class="product-name" data-product="${p.id}">${safe(p.name)}</button><div class="price-row"><b>${money(p.price)}</b><button class="cart-add" data-add="${p.id}" aria-label="장바구니 담기">🛒</button></div></div></article>`}
 function smallProduct(p){return `<div class="small-product"><img src="${p.image}" alt=""/><div><button data-product="${p.id}">${safe(p.name)}</button><strong>${money(p.price)}</strong></div><button class="cart-add" data-add="${p.id}" aria-label="담기">＋</button></div>`}
 function videoCard(v){return `<button class="video-card ${v.kind==='쇼츠'?'short-card':''}" data-video="${v.id}"><span class="video-image"><img src="${v.image}" alt="" loading="lazy"/><span class="play">▶</span><span class="video-kind">${v.kind==='쇼츠'?'▶ Shorts':'▶ 영상'}</span></span><b>${safe(v.title)}</b><small>${safe(v.sub)}</small></button>`}
 function header(){return `<div class="announcement">▶ 유튜브 ‘절에간성경’에서 만나는 따뜻한 이야기와 맛있는 먹거리 <span> · 디자인 시연용 사이트</span></div><header class="header"><div class="header-inner"><button class="hamburger mobile-only" data-menu aria-label="메뉴">☰</button><button class="brand" data-home><span class="brand-mark">☘</span><span><strong>절에간성경</strong><small>FOOD MARKET</small></span></button><span class="tagline">영상으로 만나고, 바로 구매하는 건강한 먹거리 쇼핑몰</span><form id="search-form" class="search"><input id="search-input" placeholder="영상 속 상품, 먹거리, 레시피를 검색해보세요" value="${safe(state.query)}" aria-label="상품 검색"/><button aria-label="검색">⌕</button></form><div class="header-actions"><button data-search-open class="mobile-only" aria-label="검색">⌕</button><button data-info="로그인" class="desktop-only">♙<small>로그인</small></button><button data-favs>♡<small>찜한상품</small></button><button data-cart>🛒<em>${state.cart.reduce((n,i)=>n+i.qty,0)}</em><small>장바구니</small></button></div></div></header><nav class="nav"><div class="nav-inner"><button class="all-cat" data-menu>☰ &nbsp; 전체 카테고리</button><button data-page="videos">▶ 영상 속 상품</button><button data-page="shorts">▣ 쇼츠 모음</button><button data-page="best">베스트</button><button data-page="new">신상품</button><button data-page="sale">특가·이벤트</button><button data-page="categories">식품 카테고리</button></div></nav>`}
-function home(){const v=videoById(state.video);let shown=state.videoTab==='전체'?videos:videos.filter(x=>state.videoTab==='쇼츠'?x.kind==='쇼츠':x.kind==='영상');return `<section class="hero"><div class="hero-visual" style="background-image:linear-gradient(90deg,rgba(17,40,24,.80),rgba(17,40,24,.08)),url('${v.image}')"><div class="hero-copy"><span class="eyebrow">▶ 절에간성경 · 영상 속 맛있는 발견</span><h1>${safe(v.title)}</h1><p>좋은 이야기를 보고, 좋은 먹거리를 만나는 곳</p><button class="hero-play" data-video-modal="${v.id}">▶ 실제 영상 재생</button></div></div><aside class="hero-products"><div class="section-top"><h2>이 영상과 연결할 상품</h2><span>상품 연결 준비 중</span></div>${v.products.length?v.products.map(id=>smallProduct(byId(id))).join(''):'<p class="muted">아직 영상별 판매 상품이 등록되지 않았어요. 아래 샘플 상품은 영상에 등장한 상품이 아닙니다.</p>'}<button class="solid wide" data-page="videos">영상 속 상품 전체보기 →</button></aside></section><section class="section"><div class="section-heading"><div><h2><span class="red">▶</span> 최신 영상 & 쇼츠</h2><p>영상에서 마음에 든 먹거리를 바로 찾아보세요.</p></div><div class="pills">${['전체','영상','쇼츠'].map(t=>`<button data-tab="${t}" class="${state.videoTab===t?'selected':''}">${t}</button>`).join('')}</div></div><div class="video-scroll">${shown.map(videoCard).join('')}</div></section><section class="section"><div class="section-heading"><div><h2>🛍 영상 속 인기 상품 바로구매</h2><p>영상에서 소개된 상품을 둘러보세요.</p></div><button class="more" data-page="videos">더보기 →</button></div><div class="product-grid">${products.slice(0,4).map(card).join('')}</div></section><section class="section category-section"><div class="section-heading"><div><h2>원하는 먹거리를 찾아보세요</h2><p>카테고리별로 간편하게 쇼핑하기</p></div></div><div class="category-grid">${categories.slice(1).map(([n,e])=>`<button data-category="${n}"><span>${e}</span><b>${n}</b></button>`).join('')}</div></section><section class="section"><div class="section-heading"><div><h2>🌿 절에간성경 추천 상품</h2><p>오늘의 식탁을 더욱 풍성하게</p></div><button class="more" data-page="best">전체보기 →</button></div><div class="product-grid">${products.slice(4).map(card).join('')}</div></section><section class="channel-banner"><div><span>YOUTUBE × FOOD MARKET</span><h2>영상에서 발견한 맛있는 일상</h2><p>절에간성경 채널의 이야기와 함께 쇼핑을 즐겨보세요.</p></div><button data-channel>채널 바로가기 ↗</button></section>`}
+const banners=[
+ {eyebrow:'절에간성경 FOOD MARKET',title:'좋은 먹거리로 채우는\n건강한 식탁',description:'영상에서 만난 이야기, 우리 집 식탁까지',image:imgs.vegetable,button:'추천 상품 보기',page:'best'},
+ {eyebrow:'오늘의 신선한 발견',title:'산지의 신선함을\n그대로 전해요',description:'제철 농산물부터 정성 가득한 먹거리까지',image:imgs.apple,button:'신상품 보기',page:'new'},
+ {eyebrow:'YOUTUBE × FOOD MARKET',title:'영상 속 맛있는 이야기\n쇼핑으로 이어지다',description:'절에간성경의 영상과 쇼츠를 한곳에서',image:imgs.food,button:'영상 보러 가기',page:'videos'}
+];
+function banner(){return `<section class="banner-slider" aria-label="메인 추천 배너"><div class="banner-track">${banners.map((b,i)=>`<article class="banner-slide ${i===state.slide?'is-active':''}" aria-hidden="${i!==state.slide}" style="background-image:linear-gradient(90deg,rgba(18,48,29,.88) 0%,rgba(18,48,29,.57) 49%,rgba(18,48,29,.10) 100%),url('${b.image}')"><div class="banner-content"><span class="banner-eyebrow">${b.eyebrow}</span><h2>${b.title.replaceAll('\n','<br>')}</h2><p>${b.description}</p><button class="banner-cta" data-banner-page="${b.page}" ${i!==state.slide?'tabindex="-1"':''}>${b.button} →</button></div></article>`).join('')}</div><button class="banner-arrow banner-prev" data-slide-dir="-1" aria-label="이전 배너">‹</button><button class="banner-arrow banner-next" data-slide-dir="1" aria-label="다음 배너">›</button><div class="banner-dots">${banners.map((_,i)=>`<button class="banner-dot ${i===state.slide?'active':''}" data-slide="${i}" aria-label="${i+1}번 배너" aria-current="${i===state.slide}"></button>`).join('')}</div><span class="banner-counter">${state.slide+1} / ${banners.length}</span></section>`}
+function setSlide(index){state.slide=(index+banners.length)%banners.length;document.querySelectorAll('.banner-slide').forEach((el,i)=>{let active=i===state.slide;el.classList.toggle('is-active',active);el.setAttribute('aria-hidden',String(!active));const btn=el.querySelector('.banner-cta');if(btn)btn.tabIndex=active?0:-1});document.querySelectorAll('.banner-dot').forEach((el,i)=>{el.classList.toggle('active',i===state.slide);el.setAttribute('aria-current',String(i===state.slide))});const counter=document.querySelector('.banner-counter');if(counter)counter.textContent=`${state.slide+1} / ${banners.length}`}
+
+function home() {
+  const shown = state.videoTab === '전체'
+    ? videos
+    : videos.filter(x =>
+        state.videoTab === '쇼츠'
+          ? x.kind === '쇼츠'
+          : x.kind === '영상'
+      );
+
+  return `
+    ${banner()}
+
+    <section class="section">
+      <div class="section-heading">
+        <div>
+          <h2><span class="red">▶</span> 영상 속 맛있는 이야기</h2>
+          <p>영상에서 마음에 든 먹거리를 바로 찾아보세요.</p>
+        </div>
+        <div class="pills">
+          ${['전체', '영상', '쇼츠'].map(t => `
+            <button
+              data-tab="${t}"
+              class="${state.videoTab === t ? 'selected' : ''}"
+            >${t}</button>
+          `).join('')}
+        </div>
+      </div>
+      <div class="video-scroll">
+        ${shown.map(videoCard).join('')}
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <div>
+          <h2>🛍 절에간성경 인기 상품</h2>
+          <p>지금 인기 있는 먹거리를 만나보세요.</p>
+        </div>
+        <button class="more" data-page="videos">더보기 →</button>
+      </div>
+      <div class="product-grid">
+        ${products.slice(0, 4).map(card).join('')}
+      </div>
+    </section>
+
+    <section class="section category-section">
+      <div class="section-heading">
+        <div>
+          <h2>원하는 먹거리를 찾아보세요</h2>
+          <p>카테고리별로 간편하게 쇼핑하기</p>
+        </div>
+      </div>
+      <div class="category-grid">
+        ${categories.slice(1).map(([n, e]) => `
+          <button data-category="${n}">
+            <span>${e}</span>
+            <b>${n}</b>
+          </button>
+        `).join('')}
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <div>
+          <h2>🌿 절에간성경 추천 상품</h2>
+          <p>오늘의 식탁을 더욱 풍성하게</p>
+        </div>
+        <button class="more" data-page="best">전체보기 →</button>
+      </div>
+      <div class="product-grid">
+        ${products.slice(4).map(card).join('')}
+      </div>
+    </section>
+
+    <section class="channel-banner">
+      <div>
+        <span>YOUTUBE × FOOD MARKET</span>
+        <h2>영상에서 발견한 맛있는 일상</h2>
+        <p>절에간성경 채널의 이야기와 함께 쇼핑을 즐겨보세요.</p>
+      </div>
+      <button data-channel>채널 바로가기 ↗</button>
+    </section>
+  `;
+}
+
 function listing(){let title={videos:'영상 속 상품',shorts:'쇼츠 모음',best:'베스트 상품',new:'신상품',sale:'특가·이벤트',categories:'전체 카테고리',search:'검색 결과',favorites:'찜한 상품'}[state.page]||'상품';let items=products.filter(p=>state.category==='전체'||p.category===state.category);if(state.page==='videos')items=products.filter(p=>videos.some(v=>v.products.includes(p.id)));if(state.page==='shorts')items=products.filter(p=>videos.filter(v=>v.kind==='쇼츠').some(v=>v.products.includes(p.id)));if(state.page==='new')items=products.filter(p=>p.tag==='신상품'||p.tag==='추천');if(state.page==='favorites')items=products.filter(p=>state.favorites.includes(p.id));if(state.page==='search')items=products.filter(p=>p.name.includes(state.query)||p.category.includes(state.query));if(state.page==='sale')items=products.slice(0,4);return `<section class="listing"><div class="breadcrumb">홈 / ${title}</div><h1>${title}</h1><p class="muted">미팅용 샘플 상품과 가격입니다.</p>${state.page==='shorts'||state.page==='videos'?`<div class="video-scroll listing-videos">${videos.filter(v=>state.page==='videos'||v.kind==='쇼츠').map(videoCard).join('')}</div>`:''}<div class="filter-pills">${categories.map(([n])=>`<button class="${state.category===n?'active':''}" data-category="${n}">${n}</button>`).join('')}</div><div class="product-grid">${items.map(card).join('')||'<p>해당하는 상품이 없어요.</p>'}</div></section>`}
 function footer(){return `<footer class="footer"><div class="footer-inner"><div><strong>절에간성경 FOOD MARKET</strong><p>영상으로 만나고, 좋은 먹거리를 발견하는 공간</p><small>본 웹사이트는 미팅용 시안입니다. 영상은 실제 유튜브 링크이며, 상품·가격·영상별 상품 연결은 샘플입니다. 실제 판매 및 결제는 진행되지 않습니다.</small></div><div><b>고객 안내</b><p>회사정보 · 이용약관 · 개인정보처리방침</p><p>실제 운영 전 사업자·통신판매업 정보 및 정책 등록 필요</p></div></div></footer><div class="bottom-nav"><button data-home>⌂<small>홈</small></button><button data-page="categories">▦<small>카테고리</small></button><button data-page="shorts" class="bottom-video">▶<small>영상·쇼츠</small></button><button data-favs>♡<small>찜한상품</small></button><button data-cart>🛒<small>장바구니</small></button></div>`}
 function overlay(){if(!state.modal)return '';let m=state.modal;if(m.type==='product'){let p=byId(m.id);return `<div class="shade" data-close><div class="dialog product-dialog" role="dialog" aria-modal="true" onclick="event.stopPropagation()"><button class="close" data-close>×</button><img src="${p.image}" alt="${safe(p.name)}"/><div class="dialog-copy"><span class="green-label">${p.tag}</span><h2>${safe(p.name)}</h2><p>${safe(p.desc)}</p><h2 class="price">${money(p.price)}</h2><p class="muted">샘플 상품 · 실제 주문 불가</p><div class="dialog-actions"><button class="outline" data-like="${p.id}">${state.favorites.includes(p.id)?'♥ 찜 해제':'♡ 찜하기'}</button><button class="solid" data-add="${p.id}">장바구니 담기</button></div></div></div></div>`}if(m.type==='video'){let v=videoById(m.id);return `<div class="shade" data-close><div class="dialog video-dialog" role="dialog" aria-modal="true" aria-label="유튜브 영상 재생" onclick="event.stopPropagation()"><button class="close" data-close>×</button><div class="youtube-player"><iframe src="https://www.youtube-nocookie.com/embed/${v.youtubeId}?autoplay=1&rel=0" title="${safe(v.title)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen loading="lazy"></iframe></div><div class="video-related"><h3>${safe(v.title)}</h3><p class="muted">영상에 연결된 상품은 아직 등록되지 않았습니다.</p><a href="https://www.youtube.com/${v.kind==='쇼츠'?'shorts/':'watch?v='}${v.youtubeId}" target="_blank" rel="noopener noreferrer">유튜브에서 직접 보기 ↗</a></div></div></div>`}if(m.type==='cart'){let total=state.cart.reduce((n,i)=>n+byId(i.id).price*i.qty,0);return `<div class="shade drawer-shade" data-close><div class="drawer" role="dialog" aria-modal="true" onclick="event.stopPropagation()"><div class="drawer-head"><h2>장바구니</h2><button data-close>×</button></div><p class="muted">시연용 장바구니입니다. 결제는 지원하지 않습니다.</p>${state.cart.length?state.cart.map(i=>`<div class="cart-row"><img src="${byId(i.id).image}" alt=""/><div><b>${safe(byId(i.id).name)}</b><strong>${money(byId(i.id).price*i.qty)}</strong><div class="qty"><button data-qty="${i.id}" data-delta="-1">−</button><span>${i.qty}</span><button data-qty="${i.id}" data-delta="1">＋</button></div></div><button data-remove="${i.id}" aria-label="삭제">×</button></div>`).join(''):'<div class="empty">장바구니가 비어 있어요.<br/>마음에 드는 상품을 담아보세요.</div>'}<div class="cart-total"><span>총 상품 금액</span><strong>${money(total)}</strong></div><button class="solid wide" data-info="모의 주문">주문하기 (시연용)</button></div></div>`}return `<div class="shade" data-close><div class="dialog info-dialog" onclick="event.stopPropagation()"><button class="close" data-close>×</button><h2>${safe(m.title)}</h2><p>이 기능은 디자인 시안에서 준비 중이에요. 실제 운영 단계에서 연결됩니다.</p><button class="solid" data-close>확인</button></div></div>`}
 function render(){document.getElementById('app').innerHTML=header()+`<main class="container">${state.page==='home'?home():listing()}</main>`+footer()+(state.menu?`<div class="shade menu-shade" data-close><div class="menu-drawer" onclick="event.stopPropagation()"><div class="drawer-head"><h2>전체 카테고리</h2><button data-close>×</button></div>${categories.map(([n,e])=>`<button data-category="${n}">${e} &nbsp; ${n} <span>›</span></button>`).join('')}</div></div>`:'')+overlay()+(state.toast?`<div class="toast">${safe(state.toast)}</div>`:'');}
 function navigate(page){state.page=page;state.modal=null;state.menu=false;state.category='전체';render();window.scrollTo({top:0,behavior:'smooth'});}let toastTimeout;function toast(s){state.toast=s;render();clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>{state.toast='';render()},2200)}
 document.addEventListener('submit',e=>{if(e.target.id==='search-form'){e.preventDefault();state.query=document.getElementById('search-input').value.trim();navigate('search')}});
-document.addEventListener('click',e=>{let el=e.target.closest('button,[data-close]');if(!el)return;if(el.hasAttribute('data-close')){state.modal=null;state.menu=false;render();return}if(el.hasAttribute('data-home')){navigate('home');return}if(el.dataset.page){navigate(el.dataset.page);return}if(el.hasAttribute('data-menu')){state.menu=!state.menu;render();return}if(el.dataset.category){state.category=el.dataset.category;state.page='categories';state.menu=false;render();window.scrollTo({top:0,behavior:'smooth'});return}if(el.dataset.tab){state.videoTab=el.dataset.tab;render();return}if(el.dataset.video){state.video=el.dataset.video;if(state.page==='home'){render();window.scrollTo({top:0,behavior:'smooth'})}else{state.modal={type:'video',id:el.dataset.video};render()}return}if(el.dataset.videoModal){state.modal={type:'video',id:el.dataset.videoModal};render();return}if(el.dataset.product){state.modal={type:'product',id:Number(el.dataset.product)};render();return}if(el.dataset.add){let id=Number(el.dataset.add);let found=state.cart.find(x=>x.id===id);if(found)found.qty++;else state.cart.push({id,qty:1});toast('장바구니에 상품을 담았어요!');return}if(el.hasAttribute('data-cart')){state.modal={type:'cart'};render();return}if(el.hasAttribute('data-favs')){navigate('favorites');return}if(el.dataset.like){let id=Number(el.dataset.like);state.favorites=state.favorites.includes(id)?state.favorites.filter(x=>x!==id):[...state.favorites,id];render();return}if(el.dataset.qty){let item=state.cart.find(x=>x.id===Number(el.dataset.qty));if(item)item.qty+=Number(el.dataset.delta);state.cart=state.cart.filter(x=>x.qty>0);render();return}if(el.dataset.remove){state.cart=state.cart.filter(x=>x.id!==Number(el.dataset.remove));render();return}if(el.hasAttribute('data-search-open')){document.querySelector('.search').classList.toggle('mobile-search-open');document.getElementById('search-input').focus();return}if(el.hasAttribute('data-channel')){window.open('https://www.youtube.com/@%EC%A0%88%EC%84%B1%EA%B2%BD','_blank','noopener,noreferrer');return}if(el.dataset.info){state.modal={type:'info',title:el.dataset.info};render();return}});
+document.addEventListener('click',e=>{let el=e.target.closest('button,[data-close]');if(!el)return;if(el.hasAttribute('data-close')){state.modal=null;state.menu=false;render();return}if(el.dataset.slideDir){setSlide(state.slide+Number(el.dataset.slideDir));return}if(el.dataset.slide!==undefined){setSlide(Number(el.dataset.slide));return}if(el.dataset.bannerPage){navigate(el.dataset.bannerPage);return}if(el.hasAttribute('data-home')){navigate('home');return}if(el.dataset.page){navigate(el.dataset.page);return}if(el.hasAttribute('data-menu')){state.menu=!state.menu;render();return}if(el.dataset.category){state.category=el.dataset.category;state.page='categories';state.menu=false;render();window.scrollTo({top:0,behavior:'smooth'});return}if(el.dataset.tab){state.videoTab=el.dataset.tab;render();return}if(el.dataset.video){state.video=el.dataset.video;if(state.page==='home'){render();window.scrollTo({top:0,behavior:'smooth'})}else{state.modal={type:'video',id:el.dataset.video};render()}return}if(el.dataset.videoModal){state.modal={type:'video',id:el.dataset.videoModal};render();return}if(el.dataset.product){state.modal={type:'product',id:Number(el.dataset.product)};render();return}if(el.dataset.add){let id=Number(el.dataset.add);let found=state.cart.find(x=>x.id===id);if(found)found.qty++;else state.cart.push({id,qty:1});toast('장바구니에 상품을 담았어요!');return}if(el.hasAttribute('data-cart')){state.modal={type:'cart'};render();return}if(el.hasAttribute('data-favs')){navigate('favorites');return}if(el.dataset.like){let id=Number(el.dataset.like);state.favorites=state.favorites.includes(id)?state.favorites.filter(x=>x!==id):[...state.favorites,id];render();return}if(el.dataset.qty){let item=state.cart.find(x=>x.id===Number(el.dataset.qty));if(item)item.qty+=Number(el.dataset.delta);state.cart=state.cart.filter(x=>x.qty>0);render();return}if(el.dataset.remove){state.cart=state.cart.filter(x=>x.id!==Number(el.dataset.remove));render();return}if(el.hasAttribute('data-search-open')){document.querySelector('.search').classList.toggle('mobile-search-open');document.getElementById('search-input').focus();return}if(el.hasAttribute('data-channel')){window.open('https://www.youtube.com/@%EC%A0%88%EC%84%B1%EA%B2%BD','_blank','noopener,noreferrer');return}if(el.dataset.info){state.modal={type:'info',title:el.dataset.info};render();return}});
 render();
+
+// 페이지를 다시 그리지 않고 배너만 전환해 영상/상품 UI 상태를 보존합니다.
+setInterval(()=>{if(state.page==='home'&&!document.hidden&&!state.modal&&document.querySelector('.banner-slider'))setSlide(state.slide+1)},5500);
