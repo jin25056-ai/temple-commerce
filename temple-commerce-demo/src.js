@@ -15,12 +15,91 @@ function card(p){return `<article class="product-card"><button class="product-im
 function smallProduct(p){return `<div class="small-product"><img src="${p.image}" alt=""/><div><button data-product="${p.id}">${safe(p.name)}</button><strong>${money(p.price)}</strong></div><button class="cart-add" data-add="${p.id}" aria-label="담기">＋</button></div>`}
 function videoCard(v){return `<button class="video-card ${v.kind==='쇼츠'?'short-card':''}" data-video="${v.id}"><span class="video-image"><img src="${v.image}" alt="" loading="lazy"/><span class="play">▶</span><span class="video-kind">${v.kind==='쇼츠'?'▶ Shorts':'▶ 영상'}</span></span><b>${safe(v.title)}</b><small>${safe(v.sub)}</small></button>`}
 function header(){return `<div class="announcement">▶ 유튜브 ‘절에간성경’에서 만나는 따뜻한 이야기와 맛있는 먹거리 <span> · 디자인 시연용 사이트</span></div><header class="header"><div class="header-inner"><button class="hamburger mobile-only" data-menu aria-label="메뉴">☰</button><button class="brand" data-home><span class="brand-mark">☘</span><span><strong>절에간성경</strong><small>FOOD MARKET</small></span></button><span class="tagline">영상으로 만나고, 바로 구매하는 건강한 먹거리 쇼핑몰</span><form id="search-form" class="search"><input id="search-input" placeholder="영상 속 상품, 먹거리, 레시피를 검색해보세요" value="${safe(state.query)}" aria-label="상품 검색"/><button aria-label="검색">⌕</button></form><div class="header-actions"><button data-search-open class="mobile-only" aria-label="검색">⌕</button><button data-info="로그인" class="desktop-only">♙<small>로그인</small></button><button data-favs>♡<small>찜한상품</small></button><button data-cart>🛒<em>${state.cart.reduce((n,i)=>n+i.qty,0)}</em><small>장바구니</small></button></div></div></header><nav class="nav"><div class="nav-inner"><button class="all-cat" data-menu>☰ &nbsp; 전체 카테고리</button><button data-page="videos">▶ 영상 속 상품</button><button data-page="shorts">▣ 쇼츠 모음</button><button data-page="best">베스트</button><button data-page="new">신상품</button><button data-page="sale">특가·이벤트</button><button data-page="categories">식품 카테고리</button></div></nav>`}
-const banners=[
- {eyebrow:'절에간성경 FOOD MARKET',title:'좋은 먹거리로 채우는\n건강한 식탁',description:'영상에서 만난 이야기, 우리 집 식탁까지',image:imgs.vegetable,button:'추천 상품 보기',page:'best'},
- {eyebrow:'오늘의 신선한 발견',title:'산지의 신선함을\n그대로 전해요',description:'제철 농산물부터 정성 가득한 먹거리까지',image:imgs.apple,button:'신상품 보기',page:'new'},
- {eyebrow:'YOUTUBE × FOOD MARKET',title:'영상 속 맛있는 이야기\n쇼핑으로 이어지다',description:'절에간성경의 영상과 쇼츠를 한곳에서',image:imgs.food,button:'영상 보러 가기',page:'videos'}
+
+const banners = [
+  {
+    eyebrow: 'KIM SUNG KYUNG PICK',
+    title: '김성경이 추천하는\n맛있는 누룽지',
+    description: '추억의 삼색누룽지부터 바삭한 현미버터누룽칩까지',
+    image: '/images/nurungji-banner.png',
+    button: '누룽지 보러가기',
+    page: 'best'
+  },
+  {
+    eyebrow: '오늘의 신선한 발견',
+    title: '산지의 신선함을\n그대로 전해요',
+    description: '제철 농산물부터 정성 가득한 먹거리까지',
+    image: imgs.apple,
+    button: '신상품 보기',
+    page: 'new'
+  },
+  {
+    eyebrow: 'YOUTUBE × FOOD MARKET',
+    title: '영상 속 맛있는 이야기\n쇼핑으로 이어지다',
+    description: '절에간성경의 영상과 쇼츠를 한곳에서',
+    image: imgs.food,
+    button: '영상 보러 가기',
+    page: 'videos'
+  }
 ];
-function banner(){return `<section class="banner-slider" aria-label="메인 추천 배너"><div class="banner-track">${banners.map((b,i)=>`<article class="banner-slide ${i===state.slide?'is-active':''}" aria-hidden="${i!==state.slide}" style="background-image:linear-gradient(90deg,rgba(18,48,29,.88) 0%,rgba(18,48,29,.57) 49%,rgba(18,48,29,.10) 100%),url('${b.image}')"><div class="banner-content"><span class="banner-eyebrow">${b.eyebrow}</span><h2>${b.title.replaceAll('\n','<br>')}</h2><p>${b.description}</p><button class="banner-cta" data-banner-page="${b.page}" ${i!==state.slide?'tabindex="-1"':''}>${b.button} →</button></div></article>`).join('')}</div><button class="banner-arrow banner-prev" data-slide-dir="-1" aria-label="이전 배너">‹</button><button class="banner-arrow banner-next" data-slide-dir="1" aria-label="다음 배너">›</button><div class="banner-dots">${banners.map((_,i)=>`<button class="banner-dot ${i===state.slide?'active':''}" data-slide="${i}" aria-label="${i+1}번 배너" aria-current="${i===state.slide}"></button>`).join('')}</div><span class="banner-counter">${state.slide+1} / ${banners.length}</span></section>`}
+
+
+function banner() {
+  return `
+    <section class="banner-slider" aria-label="메인 추천 배너">
+      <div class="banner-track">
+        ${banners.map((b, i) => `
+          <article
+            class="banner-slide ${i === 0 ? 'nurungji-slide' : ''} ${i === state.slide ? 'is-active' : ''}"
+            aria-hidden="${i !== state.slide}"
+            style="background-image:${
+              i === 0
+                ? `url('${b.image}')`
+                : `linear-gradient(90deg,rgba(18,48,29,.88) 0%,rgba(18,48,29,.57) 49%,rgba(18,48,29,.10) 100%),url('${b.image}')`
+            }"
+          >
+            ${i === 0 ? '' : `
+              <div class="banner-content">
+                <span class="banner-eyebrow">${b.eyebrow}</span>
+                <h2>${b.title.replaceAll('\n', '<br>')}</h2>
+                <p>${b.description}</p>
+                <button
+                  class="banner-cta"
+                  data-banner-page="${b.page}"
+                  ${i !== state.slide ? 'tabindex="-1"' : ''}
+                >
+                  ${b.button} →
+                </button>
+              </div>
+            `}
+          </article>
+        `).join('')}
+      </div>
+
+      <button class="banner-arrow banner-prev"
+        data-slide-dir="-1" aria-label="이전 배너">‹</button>
+
+      <button class="banner-arrow banner-next"
+        data-slide-dir="1" aria-label="다음 배너">›</button>
+
+      <div class="banner-dots">
+        ${banners.map((_, i) => `
+          <button
+            class="banner-dot ${i === state.slide ? 'active' : ''}"
+            data-slide="${i}"
+            aria-label="${i + 1}번 배너"
+            aria-current="${i === state.slide}"
+          ></button>
+        `).join('')}
+      </div>
+
+      <span class="banner-counter">
+        ${state.slide + 1} / ${banners.length}
+      </span>
+    </section>
+  `;
+}
+
 function setSlide(index){state.slide=(index+banners.length)%banners.length;document.querySelectorAll('.banner-slide').forEach((el,i)=>{let active=i===state.slide;el.classList.toggle('is-active',active);el.setAttribute('aria-hidden',String(!active));const btn=el.querySelector('.banner-cta');if(btn)btn.tabIndex=active?0:-1});document.querySelectorAll('.banner-dot').forEach((el,i)=>{el.classList.toggle('active',i===state.slide);el.setAttribute('aria-current',String(i===state.slide))});const counter=document.querySelector('.banner-counter');if(counter)counter.textContent=`${state.slide+1} / ${banners.length}`}
 
 function home() {

@@ -55,3 +55,11 @@
 .banner-counter{position:absolute;bottom:16px;right:22px;z-index:3;background:#0006;border-radius:20px;padding:4px 12px;font-size:12px}
 @media(max-width:700px){.banner-slider{height:320px;border-radius:12px;margin-bottom:14px}.banner-content{padding:50px 42px 30px}.banner-eyebrow{font-size:10px;letter-spacing:1px}.banner-content h2{font-size:26px;letter-spacing:-1px;margin:12px 0}.banner-content p{font-size:12px;line-height:1.6;margin-bottom:17px}.banner-cta{font-size:12px;padding:10px 13px}.banner-arrow{width:27px;height:27px;font-size:24px}.banner-prev{left:7px}.banner-next{right:7px}.banner-dots{bottom:13px}.banner-counter{bottom:9px;right:10px;font-size:10px}}
 @media(prefers-reduced-motion:reduce){.banner-slide,.banner-dot{transition:none}}
+
+/* 첫 번째 누룽지 배너 */
+.banner-slide.nurungji-slide {
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #f8eddb;
+}
